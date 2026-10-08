@@ -48,7 +48,8 @@ button { font-family:inherit; }
 .img-wrap img.on { opacity:1; }
 .img-ph { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:12px; }
 .badge { position:absolute; top:8px; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; color:#fff; }
-.badge.l { left:8px; background:var(--accent); } .badge.r { right:8px; background:var(--ink); }
+.badge.l { left:8px; background:var(--ink); } .badge.r { right:8px; background:var(--accent); }
+.img-wrap img { object-fit:contain; }
 .body { padding:10px 12px 12px; }
 .brand { font-size:10px; font-weight:700; color:#888; letter-spacing:.08em; text-transform:uppercase; }
 .name { font-size:14px; font-weight:700; margin:3px 0 7px; line-height:1.35; }
@@ -146,22 +147,45 @@ const USERS = {
  "f813e09a871d354e50237af71f87eaa9f63be18066bf15b518ad176eaa68b8d1": "江瑋豪"
 };
 
-// 5) 鞋款清單（範例，待替換）。圖片放在 images/ 資料夾，檔名填在 img
-//    sizes 可以列出所有尺寸，或寫範圍字串 "22~30"（每 0.5 一碼）
+// 5) 鞋款清單：每人從全部鞋款中選 1 雙（label 只是分區標題）
+//    圖片放在 images/，檔名 = 型號.jpg；sizes 可寫範圍 "25.5~29"（每 0.5 一碼）或陣列
+//    如果不同顏色尺寸不同，sizes 寫在該顏色（variant）裡
+const M_SIZES = ["25.5","26","26.5","27","27.5","28","28.5","29","30","31"];
+const M_SIZES_30 = ["25.5","26","26.5","27","27.5","28","28.5","29","30"];
+const W_SIZES = "22.5~26";
 const SHOE_GROUPS = [
- {
-  label: "選一雙陪你跑 NB 10K",
-  items: [
-   { brand:"NEW BALANCE", name:"範例鞋款 A（待補）", sizes:"22~30", tag:"範例",
-     variants:[ { color:"黑色", hex:"#1a1a1a", model:"MODEL-A-BK", img:"", url:"" },
-                { color:"白色", hex:"#f2f2f2", model:"MODEL-A-WT", img:"", url:"" } ] },
-   { brand:"NEW BALANCE", name:"範例鞋款 B（待補）", sizes:"22~30", tag:"範例",
-     variants:[ { color:"灰色", hex:"#b9bcbc", model:"MODEL-B-GY", img:"", url:"" } ] },
-   { brand:"NEW BALANCE", name:"範例鞋款 C（待補）", sizes:"22~30", tag:"範例",
-     variants:[ { color:"藍色", hex:"#3f6fb5", model:"MODEL-C-BL", img:"", url:"" },
-                { color:"粉色", hex:"#f2b8c6", model:"MODEL-C-PK", img:"", url:"" } ] }
-  ]
- }
+ { label: "680",
+   items: [
+    { brand:"NEW BALANCE", name:"680 男款", sizes:M_SIZES, tag:"男款",
+      variants:[ { color:"黑色", hex:"#1f1f1f", model:"M680G9E2", img:"M680G9E2.jpg" },
+                 { color:"灰色", hex:"#8e9493", model:"M680G3UH", img:"M680G3UH.jpg" } ] },
+    { brand:"NEW BALANCE", name:"680 女款", sizes:W_SIZES, tag:"女款",
+      variants:[ { color:"藕紫", hex:"#8a6b6e", model:"W680G8AC", img:"W680G8AC.jpg" },
+                 { color:"黑色", hex:"#1f1f1f", model:"W680G816", img:"W680G816.jpg" } ] } ] },
+ { label: "1080",
+   items: [
+    { brand:"NEW BALANCE", name:"1080 男款", tag:"男款",
+      variants:[ { color:"白色", hex:"#f0f0f0", model:"M10807E3", img:"M10807E3.jpg", sizes:["25.5","26","26.5","27.5","28","29","30"] },
+                 { color:"灰色", hex:"#b5b5b3", model:"M10801VU", img:"M10801VU.jpg", sizes:["26","26.5","27","27.5","28","28.5","29","30"] } ] },
+    { brand:"NEW BALANCE", name:"1080 女款", tag:"女款",
+      variants:[ { color:"灰色", hex:"#c4c4c2", model:"W10808QM", img:"W10808QM.jpg", sizes:"23~25.5" },
+                 { color:"黑色", hex:"#1f1f1f", model:"W1080815", img:"W1080815.jpg", sizes:"23.5~25.5" } ] } ] },
+ { label: "ARISHI V4",
+   items: [
+    { brand:"NEW BALANCE", name:"ARISHI V4 男款", sizes:M_SIZES, tag:"男款",
+      variants:[ { color:"灰色", hex:"#6f7472", model:"MARIS3OK", img:"MARIS3OK.jpg" },
+                 { color:"黑色", hex:"#1f1f1f", model:"MARIS9HW", img:"MARIS9HW.jpg" } ] },
+    { brand:"NEW BALANCE", name:"ARISHI V4 女款", sizes:W_SIZES, tag:"女款",
+      variants:[ { color:"黑色", hex:"#1f1f1f", model:"WARIS9WC", img:"WARIS9WC.jpg" },
+                 { color:"米白", hex:"#efe6d6", model:"WARIS9MY", img:"WARIS9MY.jpg" } ] } ] },
+ { label: "FLITE-R",
+   items: [
+    { brand:"NEW BALANCE", name:"FLITE-R 男款", sizes:M_SIZES_30, tag:"男款",
+      variants:[ { color:"白色", hex:"#eeeeee", model:"MFLTR1RU", img:"MFLTR1RU.jpg" },
+                 { color:"黑色", hex:"#1f1f1f", model:"MFLTR8NR", img:"MFLTR8NR.jpg" } ] },
+    { brand:"NEW BALANCE", name:"FLITE-R 女款", sizes:W_SIZES, tag:"女款",
+      variants:[ { color:"白色", hex:"#eeeeee", model:"WFLTR1UD", img:"WFLTR1UD.jpg" },
+                 { color:"黑色", hex:"#1f1f1f", model:"WFLTR9DM", img:"WFLTR9DM.jpg" } ] } ] }
 ];
 </script>
 <!-- ============ 設定區結束 ============ -->
@@ -217,7 +241,15 @@ const SHOE_GROUPS = [
     <div class="info"><div class="info-h">集合時間</div><div class="info-v">6:30</div></div>
     <div class="info"><div class="info-h">起跑時間</div><div class="info-v">第一組 7:30–7:40<br>第二組 7:55–8:05<small>限時 2 小時完賽</small></div></div>
   </div>
-  <div class="kit">📦 大會物資將於 <strong>10/16–10/21</strong> 間，直接寄送到<strong>各自報名時填寫的通訊地址</strong>，請留意收件。</div>
+  <div class="kit">
+    <div style="font-weight:700;margin-bottom:4px">📦 大會物資宅配說明</div>
+    <ul style="padding-left:18px;margin:0">
+      <li>大會將於 <strong>10/16–10/21</strong> 陸續寄送到<strong>各自報名時填寫的地址</strong>，請留意物流陌生來電。</li>
+      <li>收到包裹就代表完成領物，<strong>11/1 當天直接到會場集合檢錄</strong>即可。</li>
+      <li>如果 <strong>10/22 前仍未收到</strong>，請在 10/23 上班時間來電 <a href="tel:0225575226,335" style="color:inherit">02-2557-5226 #335</a> 查詢。</li>
+      <li>包裹無人簽收而退回，大會<strong>不再補寄</strong>；沒有號碼布將無法進入賽道。</li>
+    </ul>
+  </div>
 
   <details class="more">
     <summary>當日流程</summary>
@@ -263,7 +295,7 @@ const SALT = 'nb10k-2026:';
 let me = null, myPhone = '';
 const picks = new Map();
 let refreshers = [];
-const grouped = SHOE_GROUPS.length > 1;
+const grouped = false; // 全部鞋款合計選 PICK_COUNT 雙
 const required = grouped ? SHOE_GROUPS.length : PICK_COUNT;
 
 async function sha256(s) {
@@ -345,7 +377,11 @@ function card(g) {
   const color = document.createElement('div'); color.className = 'color';
   const model = document.createElement('div'); model.className = 'model';
   const sel = document.createElement('select');
-  sel.innerHTML = '<option value="">選擇尺寸</option>' + sizeList(g.sizes).map(s => `<option value="${s}">${s} cm</option>`).join('');
+  function fillSizes(v) {
+    const keep = sel.value, list = sizeList(v.sizes || g.sizes);
+    sel.innerHTML = '<option value="">選擇尺寸</option>' + list.map(s => `<option value="${s}">${s} cm</option>`).join('');
+    sel.value = list.includes(keep) ? keep : '';
+  }
   const btn = document.createElement('button'); btn.className = 'pick-btn';
   const link = document.createElement('a'); link.className = 'link'; link.target = '_blank'; link.rel = 'noopener';
 
@@ -354,8 +390,10 @@ function card(g) {
     wrap.querySelectorAll('img').forEach(im => im.classList.toggle('on', +im.dataset.i === i));
     dots.querySelectorAll('.dot').forEach((d, j) => d.classList.toggle('on', j === i));
     color.textContent = v.color; model.textContent = v.model || '';
+    fillSizes(v);
     if (v.url) { link.href = v.url; link.textContent = '🔗 查看官網'; link.style.display = ''; } else link.style.display = 'none';
-    const p = picks.get(g._key); if (p) { p.idx = i; update(); }
+    const p = picks.get(g._key);
+    if (p) { p.idx = i; p.size = sel.value; if (!sel.value) sel.classList.add('need'); update(); }
   }
   g.variants.forEach((v, i) => {
     const d = document.createElement('div'); d.className = 'dot'; d.title = v.color;
