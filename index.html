@@ -131,7 +131,7 @@ const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbwa0Ms5-UbQIumjSrvmE
 const PICK_COUNT = 1;
 
 // 3) 截止日期（顯示用）
-const DEADLINE = '10 / 20';
+const DEADLINE = '';   // 留空就不顯示，例如 '10 / 20'
 
 // 4) 參加者：key = SHA-256('nb10k-2026:' + 手機10碼)，避免手機號碼直接出現在網頁原始碼
 const USERS = {
@@ -340,7 +340,8 @@ function sizeList(s) {
 function render() {
   document.getElementById('user-title').textContent = me + ' 的選鞋清單';
   document.getElementById('intro').innerHTML = '從下方鞋款中挑選 <strong>' + required + ' 雙</strong>，選好顏色與尺寸後送出即可。';
-  document.getElementById('deadline').textContent = '⏰ 截止日期：' + DEADLINE;
+  const dl = document.getElementById('deadline');
+  dl.textContent = '⏰ 截止日期：' + DEADLINE; dl.style.display = DEADLINE ? '' : 'none';
   const box = document.getElementById('groups'); box.innerHTML = '';
   picks.clear(); refreshers = [];
   SHOE_GROUPS.forEach((g, gi) => {
