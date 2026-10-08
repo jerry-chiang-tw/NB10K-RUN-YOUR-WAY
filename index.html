@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NB 10K 公關隊 選鞋</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+:root { --ink:#141414; --muted:#6b6b6b; --line:#e4e4e1; --bg:#f4f4f1; --card:#fff; --accent:#cf0a2c; --ok:#1a7f37; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang TC','Microsoft JhengHei',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
+button { font-family:inherit; }
+
+/* login */
+#login-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:24px 16px; background:var(--bg); }
+.login-box { background:#fff; border-radius:18px; box-shadow:0 6px 28px rgba(0,0,0,.08); overflow:hidden; padding:34px 28px 28px; width:100%; max-width:380px; }
+.event-tag { display:inline-block; font-size:11px; font-weight:700; letter-spacing:.14em; color:#fff; background:var(--accent); padding:4px 10px; border-radius:4px; }
+.login-title { font-size:24px; font-weight:800; margin:14px 0 4px; letter-spacing:.01em; }
+.login-sub { font-size:13px; color:var(--muted); margin-bottom:26px; line-height:1.6; }
+.login-label { font-size:12px; color:#555; margin-bottom:6px; font-weight:600; }
+.login-input { width:100%; padding:12px 14px; border:1px solid #d6d6d6; border-radius:10px; font-size:17px; letter-spacing:.06em; outline:none; margin-bottom:14px; }
+.login-input:focus { border-color:var(--ink); }
+.btn-dark { width:100%; padding:13px; background:var(--ink); color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; }
+.btn-dark:disabled { background:#bbb; cursor:default; }
+.login-error { color:var(--accent); font-size:13px; text-align:center; margin-top:12px; min-height:18px; }
+.login-foot { color:#9a9a9a; font-size:11px; margin-top:18px; text-align:center; }
+
+/* main */
+#main-screen { display:none; padding:20px 16px 190px; max-width:960px; margin:0 auto; }
+.top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.top h1 { font-size:21px; font-weight:800; margin-top:10px; }
+.logout-btn { font-size:12px; color:#777; background:#fff; border:1px solid #ddd; border-radius:20px; padding:5px 13px; cursor:pointer; flex-shrink:0; }
+.intro { font-size:14px; color:#333; line-height:1.75; margin-top:8px; }
+.deadline { display:inline-block; margin-top:10px; font-size:12px; padding:4px 13px; border-radius:20px; background:#fff; border:1px solid var(--line); color:#444; }
+.notice { margin-top:14px; padding:13px 16px; border-radius:12px; background:#fff; border:1px solid var(--line); font-size:13px; line-height:1.7; color:#333; }
+.notice strong { color:var(--accent); }
+.steps { margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+.step { display:flex; align-items:center; gap:7px; font-size:12px; color:#444; background:#fff; padding:6px 13px; border-radius:20px; border:1px solid var(--line); }
+.step b { width:19px; height:19px; border-radius:50%; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; }
+.divider { height:1px; background:var(--line); margin:20px 0 6px; }
+.group-label { font-size:13px; font-weight:700; margin:22px 0 10px; padding-left:9px; border-left:3px solid var(--accent); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+@media (max-width:480px) { .grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; } .steps { flex-direction:column; align-items:flex-start; } }
+
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; transition:box-shadow .15s,border-color .15s; }
+.card.picked { border-color:var(--ink); box-shadow:0 0 0 2px var(--ink); }
+.img-wrap { position:relative; aspect-ratio:1; background:#f7f7f5; }
+.img-wrap img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .2s; }
+.img-wrap img.on { opacity:1; }
+.img-ph { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:12px; }
+.badge { position:absolute; top:8px; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; color:#fff; }
+.badge.l { left:8px; background:var(--accent); } .badge.r { right:8px; background:var(--ink); }
+.body { padding:10px 12px 12px; }
+.brand { font-size:10px; font-weight:700; color:#888; letter-spacing:.08em; text-transform:uppercase; }
+.name { font-size:14px; font-weight:700; margin:3px 0 7px; line-height:1.35; }
+.dots { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:5px; }
+.dot { width:22px; height:22px; border-radius:50%; border:2px solid transparent; cursor:pointer; box-shadow:inset 0 0 0 1px rgba(0,0,0,.15); }
+.dot.on { border-color:var(--ink); }
+.color { font-size:12px; color:#333; }
+.model { font-size:10px; color:#aaa; margin:2px 0 7px; }
+.note { font-size:11px; color:#a35a00; margin-bottom:6px; }
+select { width:100%; padding:8px; margin-bottom:8px; border:1px solid #ddd; border-radius:8px; font-size:13px; background:#fff; color:var(--ink); }
+select.need { border-color:var(--accent); box-shadow:0 0 0 2px rgba(207,10,44,.15); }
+.pick-btn { width:100%; padding:9px; border:1px solid var(--ink); border-radius:8px; background:#fff; color:var(--ink); font-size:13px; font-weight:700; cursor:pointer; }
+.pick-btn.on { background:var(--ink); color:#fff; }
+.pick-btn:disabled { border-color:#ddd; color:#aaa; background:#fafafa; cursor:default; }
+.link { display:inline-block; margin-top:8px; font-size:11px; color:#0b62c4; text-decoration:none; }
+
+#bar { position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid #ddd; box-shadow:0 -4px 16px rgba(0,0,0,.07); padding:10px 16px calc(10px + env(safe-area-inset-bottom)); z-index:50; display:none; }
+.bar-in { max-width:960px; margin:0 auto; display:flex; gap:12px; align-items:center; justify-content:space-between; }
+.bar-l { flex:1; min-width:0; }
+.bar-title { font-size:13px; font-weight:700; margin-bottom:3px; }
+.bar-item { font-size:12px; color:#444; line-height:1.6; display:flex; gap:6px; align-items:center; }
+.bar-x { border:none; background:none; color:#888; font-size:12px; cursor:pointer; }
+.bar-msg { font-size:12px; margin-top:3px; } .bar-msg.ok { color:var(--ok); } .bar-msg.err { color:var(--accent); }
+#submit-btn { padding:12px 24px; border:none; border-radius:24px; background:var(--ink); color:#fff; font-size:14px; font-weight:700; cursor:pointer; white-space:nowrap; }
+#submit-btn:disabled { background:#ccc; cursor:default; }
+@media (max-width:480px) { .bar-in { flex-direction:column; align-items:stretch; } }
+
+.mask { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100; display:none; align-items:center; justify-content:center; padding:16px; }
+.mask.open { display:flex; }
+.dlg { background:#fff; border-radius:16px; width:100%; max-width:500px; max-height:90vh; display:flex; flex-direction:column; }
+.dlg-h { padding:20px 20px 6px; } .dlg-t { font-size:18px; font-weight:800; } .dlg-s { font-size:12px; color:#666; margin-top:5px; line-height:1.6; }
+.dlg-list { padding:6px 20px; overflow-y:auto; }
+.cf-row { display:flex; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid #f0f0f0; }
+.cf-row:last-child { border:none; }
+.cf-img { width:80px; height:80px; border-radius:10px; background:#f5f5f3; object-fit:cover; flex-shrink:0; }
+.cf-size { display:inline-block; margin-top:3px; font-size:13px; font-weight:700; background:#f0f0ee; border-radius:6px; padding:2px 8px; }
+.dlg-f { display:flex; gap:10px; padding:14px 20px 18px; border-top:1px solid #eee; }
+.dlg-f button { flex:1; padding:12px; border-radius:24px; font-size:14px; font-weight:700; cursor:pointer; }
+.b-line { background:#fff; border:1px solid var(--ink); color:var(--ink); }
+.b-fill { background:var(--ink); border:1px solid var(--ink); color:#fff; } .b-fill:disabled { background:#ccc; border-color:#ccc; }
+.wc { padding:32px 26px 26px; text-align:center; max-width:360px; }
+.wc .dlg-t { margin:10px 0 8px; }
+.wc p { font-size:13px; color:#666; line-height:1.7; margin-bottom:22px; }
+
+/* banner + race info */
+.login-banner { display:block; width:calc(100% + 56px); margin:-34px -28px 18px; border-radius:18px 18px 0 0; }
+.hero { background:#fff; border-radius:14px; overflow:hidden; border:1px solid var(--line); margin-bottom:16px; }
+.hero img { display:block; width:100%; height:auto; }
+.info-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px; }
+.info { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; text-align:center; }
+.info-h { background:var(--accent); color:#fff; font-size:12px; font-weight:700; padding:6px 4px; letter-spacing:.06em; }
+.info-v { font-size:13px; font-weight:700; padding:10px 6px; line-height:1.5; }
+.info-v small { display:block; font-size:11px; font-weight:400; color:var(--muted); }
+@media (max-width:640px) { .info-grid { grid-template-columns:repeat(2,1fr); } }
+.kit { margin-top:10px; padding:11px 14px; border-radius:12px; background:#fff3f4; border:1px solid #f5c6cc; font-size:13px; line-height:1.6; color:#7a1020; }
+details.more { margin-top:10px; background:#fff; border:1px solid var(--line); border-radius:12px; }
+details.more summary { cursor:pointer; padding:12px 16px; font-size:14px; font-weight:700; list-style:none; display:flex; justify-content:space-between; }
+details.more summary::-webkit-details-marker { display:none; }
+details.more summary::after { content:'＋'; color:var(--muted); }
+details.more[open] summary::after { content:'－'; }
+.more-in { padding:0 16px 16px; }
+.sched { width:100%; border-collapse:collapse; font-size:13px; }
+.sched td { padding:8px 6px; border-bottom:1px solid #f0f0ee; }
+.sched td:first-child { font-weight:700; white-space:nowrap; width:1%; padding-right:16px; font-variant-numeric:tabular-nums; }
+.sched tr.hl td { color:var(--accent); font-weight:700; }
+.route-txt { font-size:12px; color:#444; line-height:1.7; margin:4px 0 10px; }
+.route-img { display:block; width:100%; border-radius:10px; border:1px solid var(--line); }
+.sec-t { font-size:13px; font-weight:700; margin:14px 0 6px; }
+</style>
+</head>
+<body>
+
+<!-- ============ 設定區：之後只要改這裡 ============ -->
+<script>
+// 1) Google Apps Script 部署後的網址（見 apps-script.gs 說明）
+const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbwa0Ms5-UbQIumjSrvmErPm-eg785JaNDAs-XkKiHEOv8wBdIUjQrk6qOdtyFfUtK8/exec';
+
+// 2) 每人選幾雙
+const PICK_COUNT = 1;
+
+// 3) 截止日期（顯示用）
+const DEADLINE = '10 / 20';
+
+// 4) 參加者：key = SHA-256('nb10k-2026:' + 手機10碼)，避免手機號碼直接出現在網頁原始碼
+const USERS = {
+ "bc35e5f33954c81c4393239f898642038674bb40630c38df1f153f61af257064": "許鈞維",
+ "c8d2437b148753546064950b90eb3be34ba398dfe22ae9f073d5775f4a3a57d2": "武詩婷",
+ "faf6ba857f0434253ca677518f78ad8387778241a83fb54ec79cd77c7b812114": "呂威智",
+ "9fa39cf71e4baff79dc9f75bd627e87ad7cd2d8d3a91470dea7800c887fc9023": "蘇庸丞",
+ "f4097991916bef4d62d67e5ee2a715ad33b40a709281bb179b1749c0bf2fd89e": "洪捷升",
+ "c8a1544e7844959da79987f42a3bf22ea76f8bcbf2a6abdcdd7d9469d26d5367": "林崑羽",
+ "c6b4f6aa27a297a919e6f26fe52673df01b036dcf02770f7b5959c7d11cd02b1": "尹巧葳",
+ "7f207d179fcd3dea02584f3e871fcfde86662ee5bd2312455ef510406ec06fc4": "林維庭",
+ "bfd8237b62ca31cd28a34f8ecc314b3cecfd17f121d71871afeccbfb556255a9": "施堉棋",
+ "f813e09a871d354e50237af71f87eaa9f63be18066bf15b518ad176eaa68b8d1": "江瑋豪"
+};
+
+// 5) 鞋款清單（範例，待替換）。圖片放在 images/ 資料夾，檔名填在 img
+//    sizes 可以列出所有尺寸，或寫範圍字串 "22~30"（每 0.5 一碼）
+const SHOE_GROUPS = [
+ {
+  label: "選一雙陪你跑 NB 10K",
+  items: [
+   { brand:"NEW BALANCE", name:"範例鞋款 A（待補）", sizes:"22~30", tag:"範例",
+     variants:[ { color:"黑色", hex:"#1a1a1a", model:"MODEL-A-BK", img:"", url:"" },
+                { color:"白色", hex:"#f2f2f2", model:"MODEL-A-WT", img:"", url:"" } ] },
+   { brand:"NEW BALANCE", name:"範例鞋款 B（待補）", sizes:"22~30", tag:"範例",
+     variants:[ { color:"灰色", hex:"#b9bcbc", model:"MODEL-B-GY", img:"", url:"" } ] },
+   { brand:"NEW BALANCE", name:"範例鞋款 C（待補）", sizes:"22~30", tag:"範例",
+     variants:[ { color:"藍色", hex:"#3f6fb5", model:"MODEL-C-BL", img:"", url:"" },
+                { color:"粉色", hex:"#f2b8c6", model:"MODEL-C-PK", img:"", url:"" } ] }
+  ]
+ }
+];
+</script>
+<!-- ============ 設定區結束 ============ -->
+
+<div id="login-screen">
+  <div class="login-box">
+    <img class="login-banner" src="images/banner.jpg" alt="2026 NB 10K 城市路跑系列賽">
+    <div class="login-title">ABC-MART 公關隊 選鞋</div>
+    <div class="login-sub">謝謝你代表 ABC-MART 參加 NB 10K 城市路跑！<br>請用報名時填寫的手機號碼登入。</div>
+    <div class="login-label">手機號碼</div>
+    <input class="login-input" id="phone" type="tel" inputmode="numeric" placeholder="0912345678" autocomplete="tel" maxlength="12">
+    <button class="btn-dark" id="login-btn" onclick="doLogin()">登入選鞋</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-foot">登入有問題請聯絡活動窗口</div>
+  </div>
+</div>
+
+<div class="mask" id="welcome"><div class="dlg wc">
+  <div style="font-size:36px">🏃</div>
+  <div class="dlg-t" id="wc-title"></div>
+  <p>公司為公關隊準備了跑鞋，<br>挑一雙你喜歡的，一起穿上它完賽吧！</p>
+  <button class="btn-dark" style="border-radius:24px" onclick="closeMask('welcome')">開始選鞋</button>
+</div></div>
+
+<div id="main-screen">
+  <div class="hero"><img src="images/banner.jpg" alt="2026 NB 10K 城市路跑系列賽"></div>
+  <div class="top">
+    <div>
+      <span class="event-tag">ABC-MART 公關隊</span>
+      <h1 id="user-title"></h1>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">登出</button>
+  </div>
+  <p class="intro" id="intro"></p>
+  <div class="deadline" id="deadline"></div>
+  <div class="notice">
+    尺寸以 cm 標示，不確定的話建議先到門市試穿再選。<br>
+    可重複送出，<strong>以最後一次送出的內容為準</strong>；鞋子寄出／發放後恕不提供換貨。
+  </div>
+  <div class="steps">
+    <div class="step"><b>1</b>點色點換顏色、選尺寸</div>
+    <div class="step"><b>2</b>點「選這雙」</div>
+    <div class="step"><b>3</b>按「送出選擇」</div>
+  </div>
+  <div class="divider"></div>
+  <div id="groups"></div>
+
+  <div class="divider" style="margin-top:32px"></div>
+  <div class="group-label">賽事資訊</div>
+  <div class="info-grid">
+    <div class="info"><div class="info-h">賽事日期</div><div class="info-v">2026/11/1<small>（日）</small></div></div>
+    <div class="info"><div class="info-h">集合地點</div><div class="info-v">大佳河濱公園<br>圓形廣場<small>近基 8 號疏散門</small></div></div>
+    <div class="info"><div class="info-h">集合時間</div><div class="info-v">6:30</div></div>
+    <div class="info"><div class="info-h">起跑時間</div><div class="info-v">第一組 7:30–7:40<br>第二組 7:55–8:05<small>限時 2 小時完賽</small></div></div>
+  </div>
+  <div class="kit">📦 大會物資將於 <strong>10/16–10/21</strong> 間，直接寄送到<strong>各自報名時填寫的通訊地址</strong>，請留意收件。</div>
+
+  <details class="more">
+    <summary>當日流程</summary>
+    <div class="more-in"><table class="sched">
+      <tr><td>05:00–06:00</td><td>活動準備</td></tr>
+      <tr class="hl"><td>06:30–07:30</td><td>10K 跑者集合、寄物</td></tr>
+      <tr><td>07:00</td><td>主持人開場</td></tr>
+      <tr><td>07:05–07:10</td><td>潘朵拉抽獎</td></tr>
+      <tr><td>07:10–07:15</td><td>活力暖身操</td></tr>
+      <tr><td>07:20–07:25</td><td>介紹 Pacer 進場</td></tr>
+      <tr class="hl"><td>07:30–07:40</td><td>10KM 第一組出發</td></tr>
+      <tr class="hl"><td>07:55–08:05</td><td>10KM 第二組出發</td></tr>
+      <tr><td>09:00–09:10</td><td>男子組／女子組總名次頒獎</td></tr>
+      <tr><td>09:10–09:20</td><td>賽後伸展操</td></tr>
+      <tr><td>09:20–09:40</td><td>抽獎活動</td></tr>
+      <tr><td>10:00–10:20</td><td>活動表演</td></tr>
+      <tr><td>10:20–10:30</td><td>活動圓滿結束</td></tr>
+    </table></div>
+  </details>
+
+  <details class="more">
+    <summary>10KM 路線圖</summary>
+    <div class="more-in">
+      <p class="route-txt">大佳河濱公園圓頂天幕（起點）→ 基 10 號水門 → 大直橋 → 迎風河濱公園（靠河岸）→ 觀山河濱公園（靠河岸）→ 中山高速公路下折返 → 觀山河濱公園（靠機場側）→ 基 7 號水門 → 基 8 號水門 → 基 9 號水門自行車道 → 基 10 號水門 → 大佳河濱公園圓頂天幕（終點）<br><span style="color:var(--accent)">配合河濱公園改造工程，路線將視實際狀況調整。</span></p>
+      <a href="images/route.jpg" target="_blank"><img class="route-img" src="images/route.jpg" alt="NB 10K 10KM 路線圖" loading="lazy"></a>
+    </div>
+  </details>
+</div>
+
+<div id="bar"><div class="bar-in">
+  <div class="bar-l"><div class="bar-title" id="bar-title"></div><div id="bar-list"></div><div class="bar-msg" id="bar-msg"></div></div>
+  <button id="submit-btn" onclick="openConfirm()">送出選擇</button>
+</div></div>
+
+<div class="mask" id="confirm"><div class="dlg">
+  <div class="dlg-h"><div class="dlg-t">請確認你的選擇</div><div class="dlg-s">送出前請再確認款式、顏色與尺寸。可重複送出，以最後一次為準。</div></div>
+  <div class="dlg-list" id="cf-list"></div>
+  <div class="dlg-f"><button class="b-line" onclick="closeMask('confirm')">返回修改</button><button class="b-fill" id="cf-ok" onclick="doSubmit()">確認送出</button></div>
+</div></div>
+
+<script>
+const SALT = 'nb10k-2026:';
+let me = null, myPhone = '';
+const picks = new Map();
+let refreshers = [];
+const grouped = SHOE_GROUPS.length > 1;
+const required = grouped ? SHOE_GROUPS.length : PICK_COUNT;
+
+async function sha256(s) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin() {
+  const raw = document.getElementById('phone').value.replace(/\D/g,'');
+  const err = document.getElementById('login-error');
+  if (raw.length !== 10) { err.textContent = '請輸入 10 碼手機號碼'; return; }
+  const h = await sha256(SALT + raw);
+  if (!USERS[h]) { err.textContent = '查無此手機號碼，請確認是否為報名時填寫的號碼'; return; }
+  me = USERS[h]; myPhone = raw.slice(0,4)+'-'+raw.slice(4);
+  err.textContent = '';
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-screen').style.display = 'block';
+  render();
+  document.getElementById('wc-title').textContent = 'Hi，' + me + '！';
+  document.getElementById('welcome').classList.add('open');
+}
+document.getElementById('phone').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function doLogout() {
+  me = null; myPhone = ''; picks.clear(); refreshers = [];
+  document.getElementById('main-screen').style.display = 'none';
+  document.getElementById('bar').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('phone').value = '';
+  document.getElementById('bar-msg').textContent = '';
+}
+function closeMask(id) { document.getElementById(id).classList.remove('open'); }
+
+function sizeList(s) {
+  if (Array.isArray(s)) return s.map(String);
+  const m = String(s||'').match(/([\d.]+)\s*[~～-]\s*([\d.]+)/);
+  if (!m) return [];
+  const out = []; for (let x = parseFloat(m[1]); x <= parseFloat(m[2]) + 1e-9; x += 0.5) out.push(String(x));
+  return out;
+}
+
+function render() {
+  document.getElementById('user-title').textContent = me + ' 的選鞋清單';
+  document.getElementById('intro').innerHTML = '從下方鞋款中挑選 <strong>' + required + ' 雙</strong>，選好顏色與尺寸後送出即可。';
+  document.getElementById('deadline').textContent = '⏰ 截止日期：' + DEADLINE;
+  const box = document.getElementById('groups'); box.innerHTML = '';
+  picks.clear(); refreshers = [];
+  SHOE_GROUPS.forEach((g, gi) => {
+    const lb = document.createElement('div'); lb.className = 'group-label'; lb.textContent = g.label; box.appendChild(lb);
+    const grid = document.createElement('div'); grid.className = 'grid';
+    g.items.forEach((it, ii) => { it._gi = gi; it._key = gi + '-' + ii; grid.appendChild(card(it)); });
+    box.appendChild(grid);
+  });
+  document.getElementById('bar').style.display = 'block';
+  update();
+}
+
+function card(g) {
+  const el = document.createElement('div'); el.className = 'card';
+  let idx = 0;
+  const wrap = document.createElement('div'); wrap.className = 'img-wrap';
+  const hasImg = g.variants.some(v => v.img);
+  if (!hasImg) wrap.innerHTML = '<div class="img-ph">圖片待補</div>';
+  g.variants.forEach((v, i) => {
+    if (!v.img) return;
+    const im = document.createElement('img'); im.src = 'images/' + v.img; im.alt = g.name + ' ' + v.color; im.loading = 'lazy';
+    im.dataset.i = i; if (i === 0) im.className = 'on';
+    im.onerror = function(){ this.remove(); };
+    wrap.appendChild(im);
+  });
+  if (g.variants.length > 1) wrap.insertAdjacentHTML('beforeend', `<span class="badge l">共 ${g.variants.length} 色</span>`);
+  if (g.tag) { const b = document.createElement('span'); b.className = 'badge r'; b.textContent = g.tag; wrap.appendChild(b); }
+  el.appendChild(wrap);
+
+  const body = document.createElement('div'); body.className = 'body';
+  const brand = document.createElement('div'); brand.className = 'brand'; brand.textContent = g.brand;
+  const name = document.createElement('div'); name.className = 'name'; name.textContent = g.name;
+  const dots = document.createElement('div'); dots.className = 'dots';
+  const color = document.createElement('div'); color.className = 'color';
+  const model = document.createElement('div'); model.className = 'model';
+  const sel = document.createElement('select');
+  sel.innerHTML = '<option value="">選擇尺寸</option>' + sizeList(g.sizes).map(s => `<option value="${s}">${s} cm</option>`).join('');
+  const btn = document.createElement('button'); btn.className = 'pick-btn';
+  const link = document.createElement('a'); link.className = 'link'; link.target = '_blank'; link.rel = 'noopener';
+
+  function setVar(i) {
+    idx = i; const v = g.variants[i];
+    wrap.querySelectorAll('img').forEach(im => im.classList.toggle('on', +im.dataset.i === i));
+    dots.querySelectorAll('.dot').forEach((d, j) => d.classList.toggle('on', j === i));
+    color.textContent = v.color; model.textContent = v.model || '';
+    if (v.url) { link.href = v.url; link.textContent = '🔗 查看官網'; link.style.display = ''; } else link.style.display = 'none';
+    const p = picks.get(g._key); if (p) { p.idx = i; update(); }
+  }
+  g.variants.forEach((v, i) => {
+    const d = document.createElement('div'); d.className = 'dot'; d.title = v.color;
+    d.style.background = v.hex || '#ccc'; d.onclick = () => setVar(i); dots.appendChild(d);
+  });
+  sel.onchange = () => { sel.classList.remove('need'); const p = picks.get(g._key); if (p) { p.size = sel.value; update(); } };
+  btn.onclick = () => {
+    if (picks.has(g._key)) picks.delete(g._key);
+    else {
+      if (!sel.value) { sel.classList.add('need'); sel.focus(); return; }
+      if (grouped) { for (const [k, p] of picks) if (p.g._gi === g._gi) picks.delete(k); }
+      else if (required === 1) picks.clear();
+      else if (picks.size >= required) return;
+      picks.set(g._key, { g, idx, size: sel.value });
+    }
+    update();
+  };
+  refreshers.push(() => {
+    const on = picks.has(g._key);
+    el.classList.toggle('picked', on);
+    btn.classList.toggle('on', on);
+    if (on) { btn.textContent = '✓ 已選（點擊取消）'; btn.disabled = false; }
+    else { const full = !grouped && required > 1 && picks.size >= required; btn.disabled = full; btn.textContent = full ? '已選滿 ' + required + ' 雙' : '選這雙'; }
+  });
+
+  body.append(brand, name, dots, color, model);
+  if (g.note) { const n = document.createElement('div'); n.className = 'note'; n.textContent = '⚠️ ' + g.note; body.appendChild(n); }
+  body.append(sel, btn, link);
+  el.appendChild(body);
+  setVar(0);
+  return el;
+}
+
+function update() {
+  refreshers.forEach(f => f());
+  const list = document.getElementById('bar-list'); list.innerHTML = '';
+  let n = 0;
+  picks.forEach((p, k) => {
+    n++; const v = p.g.variants[p.idx];
+    const row = document.createElement('div'); row.className = 'bar-item';
+    const t = document.createElement('span'); t.textContent = n + '. ' + p.g.name + '・' + v.color + '・' + p.size + ' cm';
+    const x = document.createElement('button'); x.className = 'bar-x'; x.textContent = '✕';
+    x.onclick = () => { picks.delete(k); update(); };
+    row.append(t, x); list.appendChild(row);
+  });
+  document.getElementById('bar-title').textContent = '已選 ' + picks.size + ' / ' + required + ' 雙';
+  document.getElementById('submit-btn').disabled = !(picks.size === required && [...picks.values()].every(p => p.size));
+}
+
+function openConfirm() {
+  const list = document.getElementById('cf-list'); list.innerHTML = '';
+  picks.forEach(p => {
+    const v = p.g.variants[p.idx];
+    const row = document.createElement('div'); row.className = 'cf-row';
+    const im = document.createElement('img'); im.className = 'cf-img'; im.alt = '';
+    if (v.img) im.src = 'images/' + v.img; else im.style.visibility = 'hidden';
+    const info = document.createElement('div');
+    info.innerHTML = '<div class="brand"></div><div class="name" style="margin:2px 0"></div><div style="font-size:12px;color:#444"></div><div class="cf-size"></div>';
+    info.children[0].textContent = p.g.brand; info.children[1].textContent = p.g.name;
+    info.children[2].textContent = v.color + (v.model ? '　' + v.model : '');
+    info.children[3].textContent = '尺寸 ' + p.size + ' cm';
+    row.append(im, info); list.appendChild(row);
+  });
+  const ok = document.getElementById('cf-ok'); ok.disabled = false; ok.textContent = '確認送出';
+  document.getElementById('confirm').classList.add('open');
+}
+
+async function doSubmit() {
+  const msg = document.getElementById('bar-msg');
+  if (!SUBMIT_URL) { closeMask('confirm'); msg.className = 'bar-msg err'; msg.textContent = '尚未設定送出網址，請聯絡活動窗口。'; return; }
+  const ok = document.getElementById('cf-ok'); ok.disabled = true; ok.textContent = '送出中…';
+  const payload = { name: me, phone: myPhone, picks: [...picks.values()].map(p => {
+    const v = p.g.variants[p.idx]; return { brand: p.g.brand, name: p.g.name, color: v.color, model: v.model || '', size: p.size };
+  }) };
+  try {
+    await fetch(SUBMIT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) });
+    msg.className = 'bar-msg ok'; msg.textContent = '✓ 已送出！要修改可以直接調整後再送一次，以最後一次為準。';
+  } catch (e) {
+    msg.className = 'bar-msg err'; msg.textContent = '送出失敗，請檢查網路後再試一次。';
+  }
+  closeMask('confirm');
+}
+</script>
+</body>
+</html>
