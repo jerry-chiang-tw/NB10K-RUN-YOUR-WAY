@@ -117,6 +117,30 @@ details.more[open] summary::after { content:'－'; }
 .sched tr.hl td { color:var(--accent); font-weight:700; }
 .route-txt { font-size:12px; color:#444; line-height:1.7; margin:4px 0 10px; }
 .route-img { display:block; width:100%; border-radius:10px; border:1px solid var(--line); }
+.rules { margin-top:10px; padding:12px 16px; border-radius:12px; background:#fff; border:1.5px solid var(--ink); font-size:13px; line-height:1.7; }
+.rules-t { font-weight:800; margin-bottom:4px; }
+.rules ul { padding-left:18px; } .rules strong { color:var(--accent); }
+.jump { display:inline-block; margin-top:10px; font-size:13px; font-weight:700; color:var(--accent); text-decoration:none; }
+html { scroll-behavior:smooth; } #race-info { scroll-margin-top:16px; }
+.pickup { margin-top:26px; background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; }
+.pickup-t { font-size:15px; font-weight:800; margin-bottom:2px; }
+.pickup-s { font-size:12px; color:var(--muted); margin-bottom:12px; }
+.opt { display:flex; gap:10px; align-items:flex-start; padding:12px; border:1px solid var(--line); border-radius:12px; margin-bottom:8px; cursor:pointer; }
+.opt input[type=radio] { margin-top:3px; accent-color:var(--ink); width:17px; height:17px; flex-shrink:0; }
+.opt.on { border-color:var(--ink); box-shadow:0 0 0 1px var(--ink); }
+.opt-t { font-size:14px; font-weight:700; }
+.opt-d { font-size:12px; color:#555; line-height:1.6; margin-top:2px; }
+.opt-d b { color:var(--accent); }
+.sub { display:none; margin:10px 0 2px; }
+.opt.on .sub { display:block; }
+.sub label { display:block; font-size:12px; font-weight:600; color:#444; margin:8px 0 4px; }
+.sub input[type=text], .sub textarea { width:100%; padding:9px 11px; border:1px solid #d6d6d6; border-radius:8px; font-size:14px; font-family:inherit; }
+.sub textarea { resize:vertical; min-height:56px; }
+.sub input.need, .sub textarea.need { border-color:var(--accent); box-shadow:0 0 0 2px rgba(207,10,44,.15); }
+.seg { display:flex; gap:6px; }
+.seg button { flex:1; padding:8px; border:1px solid #d6d6d6; border-radius:8px; background:#fff; font-size:13px; cursor:pointer; }
+.seg button.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+.cf-pick { margin:4px 0 8px; padding:10px 12px; background:#f6f6f4; border-radius:10px; font-size:13px; line-height:1.6; }
 .sec-t { font-size:13px; font-weight:700; margin:14px 0 6px; }
 </style>
 </head>
@@ -132,6 +156,9 @@ const PICK_COUNT = 1;
 
 // 3) 截止日期（顯示用）
 const DEADLINE = '';   // 留空就不顯示，例如 '10 / 20'
+
+// 3b) 門市拿鞋的開單說明（顯示給選 1、2 的人）
+const ORDER_NOTE = '請門市以 <b>810010</b> 開單，備註欄註明<b>「行銷」</b>';
 
 // 4) 參加者：key = SHA-256('nb10k-2026:' + 手機10碼)，避免手機號碼直接出現在網頁原始碼
 const USERS = {
@@ -225,16 +252,57 @@ const SHOE_GROUPS = [
     尺寸以 cm 標示，不確定的話建議先到門市試穿再選。<br>
     可重複送出，<strong>以最後一次送出的內容為準</strong>；鞋子寄出／發放後恕不提供換貨。
   </div>
+  <a class="jump" href="#race-info">📍 賽事資訊與注意事項 ↓</a>
   <div class="steps">
     <div class="step"><b>1</b>點色點換顏色、選尺寸</div>
     <div class="step"><b>2</b>點「選這雙」</div>
-    <div class="step"><b>3</b>按「送出選擇」</div>
+    <div class="step"><b>3</b>選拿鞋方式</div>
+    <div class="step"><b>4</b>按「送出選擇」</div>
   </div>
   <div class="divider"></div>
   <div id="groups"></div>
 
+  <div class="pickup" id="pickup">
+    <div class="pickup-t">📦 拿鞋方式</div>
+    <div class="pickup-s">請選一種，並填寫對應資料</div>
+
+    <label class="opt" data-m="store">
+      <input type="radio" name="pm" value="store">
+      <div style="flex:1;min-width:0">
+        <div class="opt-t">1. 到自己門市拿（門市有貨）</div>
+        <div class="opt-d" data-note></div>
+        <div class="sub"><label>所屬門市</label><input type="text" data-f="store" placeholder="例：台北站前店"></div>
+      </div>
+    </label>
+
+    <label class="opt" data-m="transfer">
+      <input type="radio" name="pm" value="transfer">
+      <div style="flex:1;min-width:0">
+        <div class="opt-t">2. 到自己門市拿（門市沒貨，請他店調貨）</div>
+        <div class="opt-d" data-note></div>
+        <div class="sub">
+          <label>所屬門市</label><input type="text" data-f="store" placeholder="例：台北站前店">
+          <label>調貨門市（知道的話可填）</label><input type="text" data-f="from" placeholder="選填">
+        </div>
+      </div>
+    </label>
+
+    <label class="opt" data-m="ship">
+      <input type="radio" name="pm" value="ship">
+      <div style="flex:1;min-width:0">
+        <div class="opt-t">3. 請行銷部協助寄送</div>
+        <div class="opt-d">行銷部統一安排寄出</div>
+        <div class="sub">
+          <div class="seg"><button type="button" data-to="home" class="on">寄到指定地址</button><button type="button" data-to="shop">寄櫃到門市</button></div>
+          <div data-box="home"><label>收件地址</label><textarea data-f="address" placeholder="縣市、區、路名、門牌、樓層"></textarea></div>
+          <div data-box="shop" style="display:none"><label>收件門市</label><input type="text" data-f="shipStore" placeholder="例：台北站前店"></div>
+        </div>
+      </div>
+    </label>
+  </div>
+
   <div class="divider" style="margin-top:32px"></div>
-  <div class="group-label">賽事資訊</div>
+  <div class="group-label" id="race-info">賽事資訊</div>
   <div class="info-grid">
     <div class="info"><div class="info-h">賽事日期</div><div class="info-v">2026/11/1<small>（日）</small></div></div>
     <div class="info"><div class="info-h">集合地點</div><div class="info-v">大佳河濱公園<br>圓形廣場<small>近基 8 號疏散門</small></div></div>
@@ -248,6 +316,16 @@ const SHOE_GROUPS = [
       <li>收到包裹就代表完成領物，<strong>11/1 當天直接到會場集合檢錄</strong>即可。</li>
       <li>如果 <strong>10/22 前仍未收到</strong>，請在 10/23 上班時間來電 <a href="tel:0225575226,335" style="color:inherit">02-2557-5226 #335</a> 查詢。</li>
       <li>包裹無人簽收而退回，大會<strong>不再補寄</strong>；沒有號碼布將無法進入賽道。</li>
+    </ul>
+  </div>
+
+  <div class="rules">
+    <div class="rules-t">⚠️ 公關隊注意事項</div>
+    <ul>
+      <li>比賽當天<strong>務必穿著 NB 鞋款</strong>（就是這次選的這雙！）。</li>
+      <li>服裝請保持品牌專業形象，<strong>嚴禁出現其他品牌的明顯 LOGO</strong>。</li>
+      <li>6:30 集合，請預留交通與寄物時間；第一組 7:30 起跑，限時 2 小時完賽。</li>
+      <li>大會物資會寄到報名地址，沒有號碼布無法進入賽道，記得帶上。</li>
     </ul>
   </div>
 
@@ -280,7 +358,7 @@ const SHOE_GROUPS = [
 </div>
 
 <div id="bar"><div class="bar-in">
-  <div class="bar-l"><div class="bar-title" id="bar-title"></div><div id="bar-list"></div><div class="bar-msg" id="bar-msg"></div></div>
+  <div class="bar-l"><div class="bar-title" id="bar-title"></div><div id="bar-list"></div><div class="bar-item" id="bar-hint" style="color:#7a1020"></div><div class="bar-msg" id="bar-msg"></div></div>
   <button id="submit-btn" onclick="openConfirm()">送出選擇</button>
 </div></div>
 
@@ -326,6 +404,8 @@ function doLogout() {
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('phone').value = '';
   document.getElementById('bar-msg').textContent = '';
+  document.querySelectorAll('#pickup .opt').forEach(o => o.classList.remove('on'));
+  document.querySelectorAll('#pickup input, #pickup textarea').forEach(i => { if (i.type === 'radio') i.checked = false; else i.value = ''; });
 }
 function closeMask(id) { document.getElementById(id).classList.remove('open'); }
 
@@ -428,6 +508,37 @@ function card(g) {
   return el;
 }
 
+// ---- 拿鞋方式 ----
+let shipTo = 'home';
+document.querySelectorAll('#pickup [data-note]').forEach(el => el.innerHTML = ORDER_NOTE);
+document.querySelectorAll('#pickup .opt').forEach(opt => {
+  opt.querySelector('input[type=radio]').addEventListener('change', () => {
+    document.querySelectorAll('#pickup .opt').forEach(o => o.classList.toggle('on', o === opt)); update();
+  });
+});
+document.querySelectorAll('#pickup .seg button').forEach(b => b.addEventListener('click', e => {
+  e.preventDefault(); shipTo = b.dataset.to;
+  document.querySelectorAll('#pickup .seg button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('#pickup [data-box]').forEach(x => x.style.display = x.dataset.box === shipTo ? '' : 'none');
+  update();
+}));
+document.querySelectorAll('#pickup input[type=text], #pickup textarea').forEach(i => i.addEventListener('input', () => { i.classList.remove('need'); update(); }));
+
+function getPickup() {
+  const opt = document.querySelector('#pickup .opt.on'); if (!opt) return null;
+  const f = k => { const el = opt.querySelector(`[data-f="${k}"]`); return el ? el.value.trim() : ''; };
+  const m = opt.dataset.m;
+  if (m === 'store') return { method:'門市自取（有貨）', store:f('store'), from:'', shipTo:'', address:'', need: f('store') ? null : 'store' };
+  if (m === 'transfer') return { method:'門市自取（他店調貨）', store:f('store'), from:f('from'), shipTo:'', address:'', need: f('store') ? null : 'store' };
+  if (shipTo === 'home') return { method:'行銷部寄送', store:'', from:'', shipTo:'寄到地址', address:f('address'), need: f('address') ? null : 'address' };
+  return { method:'行銷部寄送', store:f('shipStore'), from:'', shipTo:'寄櫃到門市', address:'', need: f('shipStore') ? null : 'shipStore' };
+}
+function pickupText(pk) {
+  if (pk.shipTo === '寄到地址') return pk.method + '・寄到：' + pk.address;
+  if (pk.shipTo === '寄櫃到門市') return pk.method + '・寄櫃到：' + pk.store;
+  return pk.method + '・' + pk.store + (pk.from ? '（由 ' + pk.from + ' 調貨）' : '');
+}
+
 function update() {
   refreshers.forEach(f => f());
   const list = document.getElementById('bar-list'); list.innerHTML = '';
@@ -441,7 +552,11 @@ function update() {
     row.append(t, x); list.appendChild(row);
   });
   document.getElementById('bar-title').textContent = '已選 ' + picks.size + ' / ' + required + ' 雙';
-  document.getElementById('submit-btn').disabled = !(picks.size === required && [...picks.values()].every(p => p.size));
+  const pk = getPickup();
+  const shoesOk = picks.size === required && [...picks.values()].every(p => p.size);
+  document.getElementById('submit-btn').disabled = !(shoesOk && pk && !pk.need);
+  const hint = document.getElementById('bar-hint');
+  hint.textContent = !shoesOk ? '' : !pk ? '↑ 請選擇拿鞋方式' : pk.need ? '↑ 請填寫拿鞋方式的門市／地址' : '📦 ' + pickupText(pk);
 }
 
 function openConfirm() {
@@ -458,6 +573,10 @@ function openConfirm() {
     info.children[3].textContent = '尺寸 ' + p.size + ' cm';
     row.append(im, info); list.appendChild(row);
   });
+  const pk = getPickup();
+  const pr = document.createElement('div'); pr.className = 'cf-pick';
+  pr.innerHTML = '<b>📦 拿鞋方式</b><br>'; pr.appendChild(document.createTextNode(pickupText(pk)));
+  list.appendChild(pr);
   const ok = document.getElementById('cf-ok'); ok.disabled = false; ok.textContent = '確認送出';
   document.getElementById('confirm').classList.add('open');
 }
@@ -466,7 +585,8 @@ async function doSubmit() {
   const msg = document.getElementById('bar-msg');
   if (!SUBMIT_URL) { closeMask('confirm'); msg.className = 'bar-msg err'; msg.textContent = '尚未設定送出網址，請聯絡活動窗口。'; return; }
   const ok = document.getElementById('cf-ok'); ok.disabled = true; ok.textContent = '送出中…';
-  const payload = { name: me, phone: myPhone, picks: [...picks.values()].map(p => {
+  const pk = getPickup();
+  const payload = { name: me, phone: myPhone, pickup: { method: pk.method, store: pk.store, from: pk.from, shipTo: pk.shipTo, address: pk.address }, picks: [...picks.values()].map(p => {
     const v = p.g.variants[p.idx]; return { brand: p.g.brand, name: p.g.name, color: v.color, model: v.model || '', size: p.size };
   }) };
   try {
