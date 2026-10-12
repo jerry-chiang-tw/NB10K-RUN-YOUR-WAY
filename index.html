@@ -134,9 +134,9 @@ html { scroll-behavior:smooth; } #race-info { scroll-margin-top:16px; }
 .sub { display:none; margin:10px 0 2px; }
 .opt.on .sub { display:block; }
 .sub label { display:block; font-size:12px; font-weight:600; color:#444; margin:8px 0 4px; }
-.sub input[type=text], .sub textarea { width:100%; padding:9px 11px; border:1px solid #d6d6d6; border-radius:8px; font-size:14px; font-family:inherit; }
+.sub input[type=text], .sub textarea, .sub select { width:100%; padding:9px 11px; border:1px solid #d6d6d6; border-radius:8px; font-size:14px; font-family:inherit; }
 .sub textarea { resize:vertical; min-height:56px; }
-.sub input.need, .sub textarea.need { border-color:var(--accent); box-shadow:0 0 0 2px rgba(207,10,44,.15); }
+.sub input.need, .sub textarea.need, .sub select.need { border-color:var(--accent); box-shadow:0 0 0 2px rgba(207,10,44,.15); }
 .seg { display:flex; gap:6px; }
 .seg button { flex:1; padding:8px; border:1px solid #d6d6d6; border-radius:8px; background:#fff; font-size:13px; cursor:pointer; }
 .seg button.on { background:var(--ink); color:#fff; border-color:var(--ink); }
@@ -159,6 +159,10 @@ const DEADLINE = '';   // 留空就不顯示，例如 '10 / 20'
 
 // 3b) 門市拿鞋的開單說明（顯示給選 1、2 的人）
 const ORDER_NOTE = '請門市以 <b>810010</b> 開單，備註欄註明<b>「行銷」</b>';
+
+// 3c) 門市清單 [店櫃代號, 店櫃名稱]，下拉選單依代號前兩碼分區
+const STORES = [["221125", "漢中"], ["221426", "敦南"], ["221427", "基隆中正"], ["221428", "西門"], ["221530", "西寧"], ["221531", "板橋環球"], ["221532", "中和環球"], ["221634", "林口三井"], ["221837", "A11"], ["221838", "內湖潤泰"], ["221839", "樹喜秀泰"], ["221941", "永和比漾"], ["222044", "新莊宏匯"], ["222201", "汐科遠雄"], ["222301", "淡新萬家福"], ["222302", "峨眉"], ["222303", "新店裕隆城"], ["222401", "重新萬家福"], ["222501", "南港LaLaport"], ["222502", "信義微風"], ["222601", "徐匯廣場"], ["222602", "天母高島屋"], ["231201", "新竹巨城"], ["231502", "苗栗尚順"], ["231705", "新竹林森"], ["231807", "桃園統領"], ["231908", "中壢"], ["231942", "宜蘭新月"], ["232009", "桃園台茂"], ["232101", "花蓮遠百"], ["232102", "新竹大遠百"], ["232201", "竹北遠百"], ["232202", "桃園八德"], ["232203", "桃園遠百"], ["232204", "內壢萬家福"], ["232301", "新竹遠雄"], ["232401", "桃園愛買"], ["232501", "桃園經國萬家福"], ["232502", "桃園青埔"], ["232601", "桃園小檜溪"], ["241603", "台中麗寶"], ["241804", "台中文華"], ["241805", "文心秀泰"], ["241907", "台中遠雄"], ["242008", "台中大遠百"], ["242009", "豐原太平洋"], ["242010", "廣三SOGO"], ["242101", "台中中友"], ["242301", "台中LaLaport"], ["242601", "台中勤美誠品"], ["242602", "台中三井"], ["251401", "嘉義耐斯"], ["252401", "嘉義秀泰"], ["261601", "台南小西門"], ["261602", "台南南紡"], ["261903", "台南FOCUS"], ["262301", "台南仁德萬家福"], ["262501", "誠品碳佐麻里"], ["271201", "高雄統一"], ["271302", "左營彩虹市集"], ["271806", "高雄草衙道"], ["271907", "高雄大遠百"], ["272101", "高雄義大"], ["272201", "岡山秀泰"], ["272301", "高雄義享"], ["281704", "屏東太平洋"], ["282201", "台東"]];
+const STORE_REGIONS = { '22':'北北基', '23':'桃竹苗・宜花', '24':'中部', '25':'嘉義', '26':'台南', '27':'高雄', '28':'屏東・台東' };
 
 // 4) 參加者：key = SHA-256('nb10k-2026:' + 手機10碼)，避免手機號碼直接出現在網頁原始碼
 const USERS = {
@@ -271,7 +275,7 @@ const SHOE_GROUPS = [
       <div style="flex:1;min-width:0">
         <div class="opt-t">1. 到自己門市拿（門市有貨）</div>
         <div class="opt-d" data-note></div>
-        <div class="sub"><label>所屬門市</label><input type="text" data-f="store" placeholder="例：台北站前店"></div>
+        <div class="sub"><label>所屬門市</label><select data-f="store" data-store></select></div>
       </div>
     </label>
 
@@ -281,8 +285,7 @@ const SHOE_GROUPS = [
         <div class="opt-t">2. 到自己門市拿（門市沒貨，請他店調貨）</div>
         <div class="opt-d" data-note></div>
         <div class="sub">
-          <label>所屬門市</label><input type="text" data-f="store" placeholder="例：台北站前店">
-          <label>調貨門市（知道的話可填）</label><input type="text" data-f="from" placeholder="選填">
+          <label>調貨門市</label><select data-f="from" data-store></select>
         </div>
       </div>
     </label>
@@ -295,7 +298,7 @@ const SHOE_GROUPS = [
         <div class="sub">
           <div class="seg"><button type="button" data-to="home" class="on">寄到指定地址</button><button type="button" data-to="shop">寄櫃到門市</button></div>
           <div data-box="home"><label>收件地址</label><textarea data-f="address" placeholder="縣市、區、路名、門牌、樓層"></textarea></div>
-          <div data-box="shop" style="display:none"><label>收件門市</label><input type="text" data-f="shipStore" placeholder="例：台北站前店"></div>
+          <div data-box="shop" style="display:none"><label>收件門市</label><select data-f="shipStore" data-store></select></div>
         </div>
       </div>
     </label>
@@ -511,6 +514,16 @@ function card(g) {
 // ---- 拿鞋方式 ----
 let shipTo = 'home';
 document.querySelectorAll('#pickup [data-note]').forEach(el => el.innerHTML = ORDER_NOTE);
+(function buildStoreSelects() {
+  const groups = {};
+  STORES.forEach(([code, name]) => { const k = code.slice(0, 2); (groups[k] = groups[k] || []).push([code, name]); });
+  const html = Object.keys(groups).sort().map(k =>
+    `<optgroup label="${STORE_REGIONS[k] || k}">` + groups[k].map(([c, n]) => `<option value="${c} ${n}">${n}（${c}）</option>`).join('') + '</optgroup>'
+  ).join('');
+  document.querySelectorAll('#pickup select[data-store]').forEach(sel => {
+    sel.innerHTML = `<option value="">${sel.hasAttribute('data-optional') ? '不確定可不選' : '請選擇門市'}</option>` + html;
+  });
+})();
 document.querySelectorAll('#pickup .opt').forEach(opt => {
   opt.querySelector('input[type=radio]').addEventListener('change', () => {
     document.querySelectorAll('#pickup .opt').forEach(o => o.classList.toggle('on', o === opt)); update();
@@ -522,21 +535,22 @@ document.querySelectorAll('#pickup .seg button').forEach(b => b.addEventListener
   document.querySelectorAll('#pickup [data-box]').forEach(x => x.style.display = x.dataset.box === shipTo ? '' : 'none');
   update();
 }));
-document.querySelectorAll('#pickup input[type=text], #pickup textarea').forEach(i => i.addEventListener('input', () => { i.classList.remove('need'); update(); }));
+document.querySelectorAll('#pickup select, #pickup textarea').forEach(i => ['input','change'].forEach(ev => i.addEventListener(ev, () => { i.classList.remove('need'); update(); })));
 
 function getPickup() {
   const opt = document.querySelector('#pickup .opt.on'); if (!opt) return null;
   const f = k => { const el = opt.querySelector(`[data-f="${k}"]`); return el ? el.value.trim() : ''; };
   const m = opt.dataset.m;
   if (m === 'store') return { method:'門市自取（有貨）', store:f('store'), from:'', shipTo:'', address:'', need: f('store') ? null : 'store' };
-  if (m === 'transfer') return { method:'門市自取（他店調貨）', store:f('store'), from:f('from'), shipTo:'', address:'', need: f('store') ? null : 'store' };
+  if (m === 'transfer') return { method:'門市自取（他店調貨）', store:'', from:f('from'), shipTo:'', address:'', need: f('from') ? null : 'from' };
   if (shipTo === 'home') return { method:'行銷部寄送', store:'', from:'', shipTo:'寄到地址', address:f('address'), need: f('address') ? null : 'address' };
   return { method:'行銷部寄送', store:f('shipStore'), from:'', shipTo:'寄櫃到門市', address:'', need: f('shipStore') ? null : 'shipStore' };
 }
 function pickupText(pk) {
   if (pk.shipTo === '寄到地址') return pk.method + '・寄到：' + pk.address;
   if (pk.shipTo === '寄櫃到門市') return pk.method + '・寄櫃到：' + pk.store;
-  return pk.method + '・' + pk.store + (pk.from ? '（由 ' + pk.from + ' 調貨）' : '');
+  if (pk.from) return pk.method + '・調貨門市：' + pk.from;
+  return pk.method + '・' + pk.store;
 }
 
 function update() {
@@ -556,7 +570,7 @@ function update() {
   const shoesOk = picks.size === required && [...picks.values()].every(p => p.size);
   document.getElementById('submit-btn').disabled = !(shoesOk && pk && !pk.need);
   const hint = document.getElementById('bar-hint');
-  hint.textContent = !shoesOk ? '' : !pk ? '↑ 請選擇拿鞋方式' : pk.need ? '↑ 請填寫拿鞋方式的門市／地址' : '📦 ' + pickupText(pk);
+  hint.textContent = !shoesOk ? '' : !pk ? '↑ 請選擇拿鞋方式' : pk.need ? '↑ 請選擇門市或填寫地址' : '📦 ' + pickupText(pk);
 }
 
 function openConfirm() {
